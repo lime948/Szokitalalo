@@ -14,6 +14,10 @@ namespace Szokitalalo
         static Random rnd = new Random();
         static string randomszo = szavak[rnd.Next(szavak.Length)];
         static int szoHossz = randomszo.Length;
+        static void Main(string[] args)
+        {
+            Jatek();
+        }
         static void Jatek()
         {
             Console.WriteLine("--- SZÓKITALÁLÓ ---");
@@ -24,10 +28,11 @@ namespace Szokitalalo
                     Console.Write("_ ");
                 }
                 Console.WriteLine("Tippelj egy betűt! (Maradék életed: " + hp + " )");
-                string betu = Console.ReadLine();
+                string betu = Console.ReadLine().ToLower();
 
                 if (!randomszo.Contains(betu))
                 {
+                    Console.WriteLine("Nem talált!");
                     hp--;
                 }
                 if (betu.Length > 1)
