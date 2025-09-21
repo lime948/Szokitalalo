@@ -1,67 +1,127 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 #nullable disable
-namespace Szokitalalo
+class Szokitalalo
 {
-    internal class Program
+    static string[] Szavak = { "programozás", "alma", "iskola", "magyarország", "barát", "autóbusz", "távirányitó", "egészség", "sport", "zene", "film", "kávé", "matek" };
+
+    static void Main()
     {
-        static int hp = 10;
-        static string[] szavak = { "első", "alma", "vizibicikli", "kukac" };
-        static Random rnd = new Random();
-        static string randomszo = szavak[rnd.Next(szavak.Length)];
-        static int szoHossz = randomszo.Length;
-        static void Main(string[] args)
+        var rnd = new Random();
+
+        Console.WriteLine("=== Szókitaláló ===");
+        bool ujra = true;
+        while (ujra)
         {
-            Jatek();
-        }
-        static void Jatek()
-        {
-            Console.WriteLine("--- SZÓKITALÁLÓ ---");
-            do
+            string cel = Szavak[rnd.Next(Szavak.Length)].ToLower();
+            PlayGame(cel);
+            Console.Write("\nSzeretnél még játszani? (i/n): ");
+            string v = Console.ReadLine().ToLower();
+            if (v == "i")
+                ujra = true;
+            else if (v == "n")
             {
-                for (int i = 0; i < szoHossz; i++)
-                {
-                    Console.Write("_ ");
-                }
-                Console.WriteLine("Tippelj egy betűt! (Maradék életed: " + hp + " )");
-                string betu = Console.ReadLine().ToLower();
+                ujra = false;
+                Console.WriteLine("Köszi, hogy játszottál! Viszlát!");
+            }
+        }
+    }
 
-                if (!randomszo.Contains(betu))
+    static void PlayGame(string cel)
+    {
+        int hp = 10;
+        var kitalaltBetuk = new HashSet<char>();
+        var hibasBetuk = new HashSet<char>();
+
+        while (true)
+        {
+            Console.WriteLine("\n-----");
+            Console.WriteLine($"Hátralévő életek: {hp}");
+            Console.Write("Szó: ");
+            bool teljes = true;
+            foreach (char c in cel)
+            {
+                if (c == ' ')
                 {
-                    Console.WriteLine("Nem talált!");
+                    Console.Write(" ");
+                    continue;
+                }
+                if (kitalaltBetuk.Contains(c))
+                {
+                    Console.Write(c);
+                }
+                else
+                {
+                    Console.Write("_");
+                    teljes = false;
+                }
+                Console.Write(" ");
+            }
+            Console.WriteLine();
+
+            if (teljes)
+            {
+                Console.WriteLine("\nGratulálok — kitaláltad a szót: " + cel);
+                return;
+            }
+
+            Console.Write("Tipp (betű vagy szó): ");
+            string bemenet = Console.ReadLine().ToLower() ?? "";
+            if (bemenet == "")
+            {
+                Console.WriteLine("Nem adtál meg semmit, próbáld újra.");
+                continue;
+            }
+
+            if (bemenet.Length > 1)
+            {
+                if (bemenet == cel)
+                {
+                    Console.WriteLine("\nHelyes! Teljes szó kitalálva: " + cel);
+                    return;
+                }
+                else
+                {
                     hp--;
+                    Console.WriteLine("Rossz találat.");
                 }
-                if (betu.Length > 1)
-                {
-                    Console.WriteLine("Csak egy betűt írj be!");
-                    hp++;
-                    continue;
+            }
+            else
+            {
+                char betu = bemenet[0];
 
-                }
-                if (betu == "")
+                if (kitalaltBetuk.Contains(betu) || hibasBetuk.Contains(betu))
                 {
-                    Console.WriteLine("Nem írtál be semmit!");
+                    Console.WriteLine("Ezt a betűt már próbáltad: " + betu);
                     continue;
                 }
-                if (randomszo.Contains(betu))
+
+                if (cel.Contains(betu))
                 {
+                    kitalaltBetuk.Add(betu);
                     Console.WriteLine("Talált!");
-
-                    if (randomszo == betu)
-                    {
-                        Console.WriteLine("Nyertél! A szó: " + randomszo);
-                        break;
-                    }
                 }
-                if (hp == 0)
+                else
                 {
-                    Console.WriteLine("Vesztettél! A szó: " + randomszo);
+                    hibasBetuk.Add(betu);
+                    hp--;
+                    Console.WriteLine("Nincs ilyen betű a szóban.");
                 }
-            } while (hp > 0);
+            }
+
+            if (hibasBetuk.Count > 0)
+            {
+                Console.Write("Hibás betűk: ");
+                Console.WriteLine(string.Join(", ", hibasBetuk));
+            }
+
+            if (hp == 0)
+            {
+                Console.WriteLine("\nVesztettél. A szó: " + cel);
+                return;
+            }
         }
     }
 }
